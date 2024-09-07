@@ -1,12 +1,15 @@
 import pyaudio
 import wave
 import keyboard
-import stt
+import internetexplorer.speach_to_text.stt as stt
+
+
 # Audio-Aufnahme Einstellungen
 CHUNK = 1024  # Datenblockgröße
 FORMAT = pyaudio.paInt16  # 16 Bit Format
 CHANNELS = 1  # Mono
 RATE = 44100  # Abtastrate in Hz
+
 
 def record_audio():
     # Initialisiere PyAudio
@@ -49,6 +52,13 @@ def record_audio():
 
     print(f"Aufnahme gespeichert als {wav_output_filename}")
     return stt.SpeechRecognizer()
-# Beispielaufruf:
-while True:
-    print(record_audio())
+
+
+def main():
+    while True:
+        yield str(record_audio())
+
+
+# Beispielaufruf
+if __name__ == "__main__":
+    main()

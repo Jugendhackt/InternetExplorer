@@ -17,6 +17,9 @@ class Browser:
         if system() == "Linux": self.browser = webdriver.Chrome(options=chrome_options)
         else: self.browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
+        self.html = ""
+        self.selected_xpath = ""
+
 
     def _clean_html(self, html: str):
         soup = BeautifulSoup(html, 'html.parser')
@@ -25,27 +28,30 @@ class Browser:
 
     def load_website(self, url: str) -> str:
         self.browser.get(url)
-        return self._clean_html(str(self.browser.page_source))
+        self.html = self._clean_html(str(self.browser.page_source))
+        return self.html
 
     def click_element(self, x_path: str) -> bool:
-        try: self.browser.find_element(By.XPATH, x_path).click(); return True
+        try:
+            self.browser.find_element(By.XPATH, x_path).click()
+            self.selected_xpath = x_path
+            return True
         except: return False
 
-    def type_text(self, x_path: str, text: str, submit: bool) -> bool:
+    def type_text(self, text: str, submit: bool) -> bool:
         try:
-            input_element = self.browser.find_element(By.XPATH, x_path); input_element.send_keys(text);
+            input_element = self.browser.find_element(By.XPATH, self.selected_xpath); input_element.send_keys(text);
             if submit: input_element.send_keys(Keys.ENTER)
             return True
         except: return False
 
-    def get_content(self) -> str: return self._clean_html(str(self.browser.page_source))
+    def get_content(self) -> str:
+        self.html = self._clean_html(str(self.browser.page_source))
+        return self.html
 
     def xpath_exists(self, xpath: str) -> bool:
         try: self.browser.find_element(By.XPATH, xpath); return True
         except: return False
-
-
-
 
 
 if __name__ == "__main__":
