@@ -30,7 +30,30 @@ function App() {
 
   useEffect(() => {
     if (lastMessage !== null) {
-      // TODO
+      const data = JSON.parse(lastMessage.data);
+      const action = data["action"];
+      switch (action) {
+        case "input":
+          const inputType = action["inputType"];
+          const inputText = action["inputText"];
+          const historyEntry = new UserInputEntry(inputType, inputText);
+          setHistoryEntries([...historyEntries, historyEntry]);
+          return;
+        case "action_entry":
+          const actions = data["actions"];
+          const parsedActionsList: BrowseAction[] = [];
+          actions.forEach((action: any) => {
+            const type = action["type"];
+            const actionData = action["actionData"];
+            const result = action["result"];
+
+            parsedActionsList.push(new BrowseAction(type, actionData, result));
+          });
+
+          const browseActionEntry = new BrowseActionEntry(parsedActionsList);
+          setHistoryEntries([...historyEntries, browseActionEntry]);
+          return;
+      }
     }
   }, [lastMessage]);
 

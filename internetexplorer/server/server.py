@@ -41,10 +41,7 @@ async def main():
     async with websockets.serve(handle_client, configFileContent["server"]["address"], configFileContent["server"]["port"]):
         await asyncio.Future()  # run forever       
 
-async def add():
-    await websocket.send
-
-def send_voice_input(input):
+def send_voice_input(input: str):
     send({
         "action": "input",
         "inputType": "voice",
@@ -74,10 +71,10 @@ def send_browse_action_entry(actions):
     })
 
 def send(object):
-    string = json.dump(object)
-    if websocket == None:
-        print("Cannot send, the websocket isn't initialized yet!")
-        return
+    string = json.dumps(object)
+    #if websocket == None:
+        #print("Cannot send, the websocket isn't initialized yet!")
+        #return
     asyncio.run(send_async(string))
 
 async def send_async(string):

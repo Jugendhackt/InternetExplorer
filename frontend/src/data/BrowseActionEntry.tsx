@@ -1,7 +1,7 @@
-import { act, ReactNode } from "react";
+import { ReactNode } from "react";
 import { HistoryEntry } from "./HistoryEntry";
 import { Card, CardBody, CardSubtitle, CardText } from "react-bootstrap";
-import { Hourglass, Mouse } from "react-bootstrap-icons";
+import { BrowserChrome, Keyboard, Mouse } from "react-bootstrap-icons";
 
 export class BrowseActionEntry extends HistoryEntry {
   render(): ReactNode {
@@ -33,7 +33,7 @@ export default BrowseActionEntryComponent
 
 
 // TODO implement all types
-export type BrowseActionType = "click_element" | "await_loading";
+export type BrowseActionType = string; //"click_element" | "await_loading";
 export type BrowseActionResult = "success" | "failure";
 
 function getBrowseActionTypeIcon(
@@ -42,8 +42,10 @@ function getBrowseActionTypeIcon(
   switch (browseActionType) {
     case "click_element":
       return <Mouse />;
-    case "await_loading":
-      return <Hourglass />;
+    case "open_website":
+      return <BrowserChrome />;
+    case "type_text":
+      return <Keyboard />
   }
 }
 
@@ -68,7 +70,7 @@ export class BrowseAction {
 
   render(setActionDetails: (actionDetails: Map<string, string>) => void): ReactNode {
     return (
-      <Card className="m-1 w-75 me-auto" onClick={() => {
+      <Card onClick={() => {
         setActionDetails(this.actionData);
       }}>
         <CardBody>

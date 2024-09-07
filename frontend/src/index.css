@@ -1,6 +1,6 @@
 
 
-@media (max-width:801px)  {
+@media (max-width:501px)  {
     .main-layout {
         flex-direction: column !important;
     }

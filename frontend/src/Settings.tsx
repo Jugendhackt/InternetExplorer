@@ -1,4 +1,5 @@
 import BooleanSetting from "./BooleanSetting";
+import KillSwitch from "./KillSwitch";
 import PageArea from "./PageArea";
 import { WebsocketSender } from "./util/WebsocketUtil";
 
@@ -22,6 +23,7 @@ const Settings = ({ sendMessage }: Props) => {
         enabled={false}
         toggleCallback={(newState) => changeSetting("confirmation", newState)}
       />
+      <KillSwitch sendMessage={sendMessage}/>
     </PageArea>
   );
 };
