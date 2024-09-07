@@ -6,7 +6,7 @@ from selenium.webdriver.common.keys import Keys
 from platform import system
 
 
-class browser:
+class Browser:
     def __init__(self) -> None:
         if system() == "Linux":
             self.browser = webdriver.Chrome()
@@ -39,6 +39,6 @@ class browser:
 
 
 if __name__ == "__main__":
-    driver = browser()
+    driver = Browser()
     print(driver.load_website("https://google.com"))
     input()
