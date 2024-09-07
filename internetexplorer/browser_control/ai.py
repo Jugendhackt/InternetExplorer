@@ -17,8 +17,9 @@ def main():
     browser = Browser()
     client = openai.Client(api_key=OPENAI_API_KEY)
 
-    prompts = ["Open YouTube", "Select the Search Input"]
+    prompts = ["Open YouTube", "Select the Search Input", "Type 'Moin'"]
     html = ""
+    prev_xpath = ""
 
     for prompt in prompts:
         action = _get_action(client, prompt, html)
@@ -30,8 +31,9 @@ def main():
                 browser.load_website(arguments["url"])
             case "click_element":
                 browser.click_element(arguments["xpath"])
+                prev_xpath = arguments["xpath"]
             case "type_text":
-                browser.type_text(arguments["xpath"], arguments["input_text"], arguments["submit"])
+                browser.type_text(prev_xpath, arguments["input_text"], True)
         html = browser.get_content()
         sleep(3)
 
@@ -80,20 +82,16 @@ def _get_action(client: openai.Client, prompt: str, html: str | None = None):
             "type": "function",
             "function": {
                 "name": "type_text",
-                "description": "If you want to write text into a textfield you can use this instruction. You need to get the XPath of the element you want to type in. Also you need to specify, what you want to type in the textfield and you can also directly submit, if it is a form",
+                "description": "If you want to write text into a textfield you can use this instruction. Also you need to specify, what you want to type in the textfield",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "xpath": {
-                            "type": "string",
-                            "description": "The XPath to the element you want to type into",
-                        },
                         "input_text": {
                             "type": "string",
                             "description": "The text you want to type into the element",
                         }
                     },
-                    "required": ["xpath", "input_text"],
+                    "required": ["input_text"],
                     "additionalProperties": False,
                 }
             }
