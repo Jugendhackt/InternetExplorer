@@ -7,26 +7,48 @@
 #   all-features: false
 #   with-sources: false
 #   generate-hashes: false
-#   universal: false
 
+annotated-types==0.7.0
+    # via pydantic
+anyio==4.4.0
+    # via httpx
+    # via openai
 attrs==24.2.0
     # via outcome
     # via trio
 certifi==2024.8.30
+    # via httpcore
+    # via httpx
     # via requests
     # via selenium
 charset-normalizer==3.3.2
     # via requests
 chromedriver==2.24.1
+distro==1.9.0
+    # via openai
 h11==0.14.0
+    # via httpcore
     # via wsproto
+httpcore==1.0.5
+    # via httpx
+httpx==0.27.2
+    # via openai
 idna==3.8
+    # via anyio
+    # via httpx
     # via requests
     # via trio
+jiter==0.5.0
+    # via openai
+openai==1.44.0
 outcome==1.3.0.post0
     # via trio
 packaging==24.1
     # via webdriver-manager
+pydantic==2.9.0
+    # via openai
+pydantic-core==2.23.2
+    # via pydantic
 pysocks==1.7.1
     # via urllib3
 python-dotenv==1.0.1
@@ -35,16 +57,26 @@ requests==2.32.3
     # via webdriver-manager
 selenium==4.24.0
 sniffio==1.3.1
+    # via anyio
+    # via httpx
+    # via openai
     # via trio
 sortedcontainers==2.4.0
     # via trio
+tqdm==4.66.5
+    # via openai
 trio==0.26.2
     # via selenium
     # via trio-websocket
 trio-websocket==0.11.1
     # via selenium
 typing-extensions==4.12.2
+    # via openai
+    # via pydantic
+    # via pydantic-core
     # via selenium
+tzdata==2024.1
+    # via pydantic
 urllib3==2.2.2
     # via requests
     # via selenium
