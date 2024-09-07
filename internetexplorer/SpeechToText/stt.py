@@ -1,4 +1,5 @@
 import speech_recognition as sr
+from pathlib import Path
 import locale
 
 def SpeechRecognizer(audio_file_path='input.wav'):
@@ -7,7 +8,8 @@ def SpeechRecognizer(audio_file_path='input.wav'):
 
     # Initialisiere den Recognizer
     r = sr.Recognizer()
-
+    	
+    Path("input.wav").touch()
     # Lade die Audiodatei
     with sr.AudioFile(audio_file_path) as source:
         audio_data = r.record(source)  # Nimm das Audio aus der Datei auf
@@ -27,4 +29,4 @@ def SpeechRecognizer(audio_file_path='input.wav'):
         recognized_text = SpeechRecognizer()
         #print(recognized_text)
         return recognized_text
-SpeechRecognizer()
+#SpeechRecognizer()
