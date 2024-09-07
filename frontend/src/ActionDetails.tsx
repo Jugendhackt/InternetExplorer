@@ -1,10 +1,16 @@
 import ActionDetailEntry from "./ActionDetailEntry";
 import PageArea from "./PageArea";
 
-const ActionDetails = () => {
+interface Props {
+  data: Map<string, string>;
+}
+
+const ActionDetails = ({data}: Props) => {
   return (
     <PageArea title="Action Details" className="rounded-end">
-      <ActionDetailEntry detailKey="Type" detailValue="Click element"/>
+      {Array.from(data.entries()).map(([key, value]) => (
+        <ActionDetailEntry key={key} detailKey={key} detailValue={value} />
+      ))}
     </PageArea>
   );
 };

@@ -1,3 +1,7 @@
-.conversation-area {
-    flex: 1.75;
+
+
+@media (max-width:801px)  {
+    .main-layout {
+        flex-direction: column !important;
+    }
 }
