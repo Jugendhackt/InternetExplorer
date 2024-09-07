@@ -1,3 +1,4 @@
+import { useState } from "react";
 import BrowseActionEntryComponent, {
   BrowseActionEntry,
 } from "./data/BrowseActionEntry";
@@ -13,9 +14,16 @@ interface Props {
 }
 
 const History = ({ historyEntries, setActionDetails, sendMessage }: Props) => {
+  const [promptBox, setPromptBox] = useState<HTMLDivElement>();
+
+  // TODO fix
+  promptBox?.scrollIntoView({
+    behavior: "smooth",
+  });
+
   // TODO make this column twice the width
   return (
-    <PageArea className="flex-grow-2" title="Conversation">
+    <PageArea className="flex-grow-2 conversation-section" title="Conversation">
       {historyEntries.map((entry) => {
         if (entry instanceof BrowseActionEntry) {
           return (
@@ -28,7 +36,12 @@ const History = ({ historyEntries, setActionDetails, sendMessage }: Props) => {
         return entry.render();
       })}
 
-      <PromptBox sendMessage={sendMessage} />
+      <PromptBox
+        sendMessage={sendMessage}
+        ref={(element) => {
+          if (element) setPromptBox(element);
+        }}
+      />
     </PageArea>
   );
 };

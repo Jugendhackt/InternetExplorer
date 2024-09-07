@@ -4,4 +4,14 @@
     .main-layout {
         flex-direction: column !important;
     }
+
+    .conversation-section {
+        height: 75vh;
+    }
+}
+
+@media (min-width:500px)  {
+    .main-layout {
+        height: 90vh;
+    }
 }

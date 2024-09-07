@@ -1,18 +1,19 @@
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { Button, FormControl, InputGroup } from "react-bootstrap";
 import { Send } from "react-bootstrap-icons";
 import { WebsocketSender } from "./util/WebsocketUtil";
 
 interface Props {
-  sendMessage: WebsocketSender
+  sendMessage: WebsocketSender;
+  ref?: (instance: HTMLDivElement | null) => void;
 }
 
-const PromptBox = ({sendMessage}: Props) => {
+const PromptBox = ({sendMessage, ref}: Props) => {
   const [content, setContent] = useState("");
   const [isEmpty, setEmpty] = useState(true);
 
   return (
-    <InputGroup>
+    <InputGroup ref={ref}>
       <FormControl
         placeholder="Enter Prompt..."
         onChange={(event) => {
