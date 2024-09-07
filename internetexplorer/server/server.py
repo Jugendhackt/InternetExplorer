@@ -1,8 +1,8 @@
 import asyncio
 import websockets
 import json 
-file = open("\\:\\config.json")
-configFileContent = file.read()
+file = open("config.json")
+configFileContent = json.loads(file.read())
 # Funktion, die Nachrichten vom Client empfängt und antwortet
 async def handle_client(websocket, path):
     print(f"Neuer Client verbunden: {path}")
