@@ -4,6 +4,7 @@ import openai
 from internetexplorer.browser_control.browser import Browser
 from time import sleep
 from json import loads
+from pathlib import Path
 
 
 load_dotenv()
@@ -12,22 +13,32 @@ if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY is not set")
 
 
-def main(user_prompt: str):
-    client = openai.Client(api_key=OPENAI_API_KEY)
-    action = _get_action(client, user_prompt)
-    print(action)
-
+def main():
     browser = Browser()
+    client = openai.Client(api_key=OPENAI_API_KEY)
 
-    arguments = loads(action.arguments)
-    match action.name:
-        case "open_website":
-            browser.load_website(arguments["url"])
+    prompts = ["Open YouTube", "Select the Search Input"]
+    html = ""
+
+    for prompt in prompts:
+        action = _get_action(client, prompt, html)
+        print(prompt, action)
+
+        arguments = loads(action.arguments)
+        match action.name:
+            case "open_website":
+                browser.load_website(arguments["url"])
+            case "click_element":
+                browser.click_element(arguments["xpath"])
+            case "type_text":
+                browser.type_text(arguments["xpath"], arguments["input_text"], arguments["submit"])
+        html = browser.get_content()
+        sleep(3)
 
     input()
 
 
-def _get_action(client: openai.Client, prompt: str):
+def _get_action(client: openai.Client, prompt: str, html: str | None = None):
     tools = [
         {
             "type": "function",
@@ -89,6 +100,10 @@ def _get_action(client: openai.Client, prompt: str):
         }
     ]
 
+    html_prompt = ""
+    if html:
+        html_prompt = f"## Website HTML:\n{html}\n\n"
+
     messages = [
         {
             "role": "system",
@@ -96,7 +111,7 @@ def _get_action(client: openai.Client, prompt: str):
         },
         {
             "role": "user",
-            "content": prompt,
+            "content": f"## User Prompt:\n{prompt}\n\n{html_prompt}",
         }
     ]
 
@@ -107,9 +122,8 @@ def _get_action(client: openai.Client, prompt: str):
         tools=tools,
     )
 
-    print(chat_completion.choices[0].message.tool_calls)
     return chat_completion.choices[0].message.tool_calls[0].function
 
 
 if __name__ == "__main__":
-    main("Open YouTube")
+    main()
