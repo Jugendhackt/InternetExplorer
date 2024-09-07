@@ -1,41 +1,27 @@
-import socketio
-import eventlet
-from eventlet import wsgi
-from flask import Flask
-import json
-file = open("internetexplorer\config.json","r+")
-configFileContent = json.loads(file.read())
-file.close()
-
-# Erstelle eine Flask-App
-app = Flask(__name__)
-
-# Initialisiere einen Socket.IO-Server
-sio = socketio.Server()
-
-# Verbinde den Socket.IO-Server mit der Flask-App
-app.wsgi_app = socketio.WSGIApp(sio, app.wsgi_app)
-
-# Ereignis, wenn ein Client eine Verbindung herstellt
-@sio.event
-def connect(sid, environ):
-    print(f"Client {sid} verbunden.")
-    sio.send("Willkommen beim WebSocket-Server!", to=sid)
-
-# Ereignis, wenn eine Nachricht empfangen wird
-@sio.event
-def message(sid, data):
-    print(f"Nachricht von {sid}: {data}")
+import asyncio
+import websockets
+import json 
+file = open("\\:\\config.json")
+configFileContent = file.read()
+# Funktion, die Nachrichten vom Client empfängt und antwortet
+async def handle_client(websocket, path):
+    print(f"Neuer Client verbunden: {path}")
     
-    # Sende eine Antwort zurück an den Client
-    sio.send(f"Server: Nachricht '{data}' empfangen", to=sid)
-
-# Ereignis, wenn die Verbindung eines Clients getrennt wird
-@sio.event
-def disconnect(sid):
-    print(f"Client {sid} getrennt.")
+    try:
+        async for message in websocket:
+            print(f"Nachricht vom Client: {message}")
+            
+            # Sende eine Antwort zurück an den Client
+            response = f"Server hat deine Nachricht '{message}' erhalten."
+            await websocket.send(response)
+    except websockets.ConnectionClosedOK:
+        print("Verbindung wurde geschlossen.")
 
 # Starte den WebSocket-Server
-if __name__ == '__main__':
-    print("WebSocket-Server wird gestartet...")
-    eventlet.wsgi.server(eventlet.listen((configFileContent["server"]["address"], configFileContent["server"]["port"])), app)
+async def main():
+    async with websockets.serve(handle_client, configFileContent["server"]["address"], configFileContent["server"]["port"]):
+        print("WebSocket-Server läuft auf ws://0.0.0.0:5000")
+        await asyncio.Future()  # Server bleibt aktiv
+
+if __name__ == "__main__":
+    asyncio.run(main())
