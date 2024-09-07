@@ -1,8 +1,9 @@
 import BooleanSetting from "./BooleanSetting";
 import PageArea from "./PageArea";
+import { WebsocketSender } from "./util/WebsocketUtil";
 
 interface Props {
-  sendMessage: (message: string) => void;
+  sendMessage: WebsocketSender;
 }
 
 const Settings = ({ sendMessage }: Props) => {

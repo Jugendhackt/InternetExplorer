@@ -42,6 +42,7 @@ function App() {
         <History
           historyEntries={historyEntries}
           setActionDetails={setActionDetails}
+          sendMessage={sendMessage}
         />
         <ActionDetails data={actionDetails} />
       </div>
