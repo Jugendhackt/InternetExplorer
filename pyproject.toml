@@ -9,6 +9,8 @@ dependencies = [
     "selenium>=4.24.0",
     "chromedriver>=2.24.1",
     "webdriver-manager>=4.0.2",
+    "openai>=1.44.0",
+    "python-dotenv>=1.0.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
