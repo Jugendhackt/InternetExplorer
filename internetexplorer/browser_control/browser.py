@@ -13,9 +13,11 @@ class Browser:
     def __init__(self) -> None:
         chrome_options = Options()
         chrome_options.add_extension(Path.cwd() / "internetexplorer" / "browser_control" / "i-still-dont-care-about-cookies.crx")
+        chrome_options.add_argument("--disable-search-engine-choice-screen")
 
         if system() == "Linux": self.browser = webdriver.Chrome(options=chrome_options)
         else: self.browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
 
         self.html = ""
         self.selected_xpath = ""
