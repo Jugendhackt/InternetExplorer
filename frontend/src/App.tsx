@@ -24,7 +24,9 @@ function App() {
     ]),
   ]);
 
-  const { sendMessage, lastMessage, readyState } = useWebSocket("ws://127.0.0.1:1000");
+  const { sendMessage, lastMessage, readyState } = useWebSocket(
+    "ws://127.0.0.1:1000"
+  );
 
   useEffect(() => {
     if (lastMessage !== null) {
@@ -36,7 +38,7 @@ function App() {
     <div>
       <h1 className="text-center">Internet Explorer</h1>
       <div className="d-flex flex-row align-items-stretch justify-content-evenly m-2 main-layout">
-        <Settings sendMessage={sendMessage}/>
+        <Settings sendMessage={sendMessage} />
         <History
           historyEntries={historyEntries}
           setActionDetails={setActionDetails}

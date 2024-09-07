@@ -4,26 +4,30 @@ import json
 file = open("config.json")
 configFileContent = json.loads(file.read())
 
-# Funktion, die Nachrichten vom Client empfängt und antwortet
 async def handle_client(websocket, path):
-    print(f"Neuer Client verbunden: {path}")
+    print(f"New client connected to path {path}")
 
     # TODO send the state of the settings here
     
     try:
         async for message in websocket:
-            print(f"Nachricht vom Client: {message}")
+            print(f"Received message: {message}")
+
+            parsed_message = json.loads(message)
+            action = parsed_message["action"]
+            
+            print(f"Action: {action}")
+
+            if action == "change_setting":
+                setting_id = parsed_message["setting_id"]
+                new_state = parsed_message["new_state"]
+                print(f"Changing setting {setting_id} to {new_state}")
             
             # Sende eine Antwort zurück an den Client
-            response = f"Server hat deine Nachricht '{message}' erhalten."
-            await websocket.send(response)
+            #response = f"Server hat deine Nachricht '{message}' erhalten."
+            #await websocket.send(response)
     except websockets.ConnectionClosedOK:
-        print("Verbindung wurde geschlossen.")
-
-async def echo(websocket, path):
-    async for message in websocket:
-        print(f"Received message: {message}")
-        await websocket.send(f"Echo: {message}")
+        print("Connection closed.")
 
 async def main():
     async with websockets.serve(handle_client, configFileContent["server"]["address"], configFileContent["server"]["port"]):
