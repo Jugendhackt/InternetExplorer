@@ -2,6 +2,6 @@
 {
     "server":{
         "address":"localhost",
-        "port":8500
+        "port":1000
     }
 }
