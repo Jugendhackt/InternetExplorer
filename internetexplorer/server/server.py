@@ -27,5 +27,9 @@ async def main():
     async with websockets.serve(handle_client, configFileContent["server"]["address"], configFileContent["server"]["port"]):
         await asyncio.Future()  # run forever       
 
-if __name__ == "__main__":
+# Call this message to start the server thread
+def run():
     asyncio.run(main())
+
+if __name__ == "__main__":
+    run()
