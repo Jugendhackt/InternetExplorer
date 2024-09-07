@@ -1,43 +1,23 @@
-from dotenv import load_dotenv
-from os import getenv
-import openai
-from internetexplorer.browser_control.browser import Browser
 from time import sleep
 from json import loads
-from pathlib import Path
+
+import openai
+
+from internetexplorer.browser_control.browser import Browser
 
 
-load_dotenv()
-OPENAI_API_KEY = getenv("OPENAI_API_KEY")
-if not OPENAI_API_KEY:
-    raise ValueError("OPENAI_API_KEY is not set")
+def main(browser: Browser, openai_client: openai.Client, prompt: str):
+    action = _get_action(openai_client, prompt, browser.html)
+    print(prompt, action)
 
-
-def main():
-    browser = Browser()
-    client = openai.Client(api_key=OPENAI_API_KEY)
-
-    prompts = ["Open YouTube", "Select the Search Input", "Type 'Never Gonna Give You Up'"]
-    html = ""
-    prev_xpath = ""
-
-    for prompt in prompts:
-        action = _get_action(client, prompt, html)
-        print(prompt, action)
-
-        arguments = loads(action.arguments)
-        match action.name:
-            case "open_website":
-                browser.load_website(arguments["url"])
-            case "click_element":
-                browser.click_element(arguments["xpath"])
-                prev_xpath = arguments["xpath"]
-            case "type_text":
-                browser.type_text(prev_xpath, arguments["input_text"], True)
-        html = browser.get_content()
-        sleep(3)
-
-    input()
+    arguments = loads(action.arguments)
+    match action.name:
+        case "open_website":
+            browser.load_website(arguments["url"])
+        case "click_element":
+            browser.click_element(arguments["xpath"])
+        case "type_text":
+            browser.type_text(arguments["input_text"], True)
 
 
 def _get_action(client: openai.Client, prompt: str, html: str | None = None):
