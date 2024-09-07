@@ -3,6 +3,10 @@ import eventlet
 from eventlet import wsgi
 from flask import Flask
 import json
+file = open("internetexplorer\config.json","r+")
+configFileContent = json.loads(file.read())
+file.close()
+
 # Erstelle eine Flask-App
 app = Flask(__name__)
 
@@ -34,4 +38,4 @@ def disconnect(sid):
 # Starte den WebSocket-Server
 if __name__ == '__main__':
     print("WebSocket-Server wird gestartet...")
-    eventlet.wsgi.server(eventlet.listen(('localhost', 8000)), app)
+    eventlet.wsgi.server(eventlet.listen((configFileContent["server"]["address"], configFileContent["server"]["port"])), app)
