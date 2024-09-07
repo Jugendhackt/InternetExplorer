@@ -14,12 +14,8 @@ class Browser:
     
     def _clean_html(self, html: str):
         soup = BeautifulSoup(html, 'html.parser')
-
-        print(len(html))
         for tag in soup(["script", "head", "svg", "iframe", "canvas"]): tag.decompose()
-        print(len(str(soup)))
         return str(soup)
-
 
     def load_website(self, url: str) -> str:
         self.browser.get(url)
