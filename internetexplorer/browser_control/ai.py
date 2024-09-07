@@ -46,6 +46,46 @@ def _get_action(client: openai.Client, prompt: str):
                     "additionalProperties": False,
                 }
             }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "click_element",
+                "description": "If you want to click an element on the website you can call this instruction. You get the website HTML and return an XPATH of the element you want to click",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "xpath": {
+                            "type": "string",
+                            "description": "The XPath of the element you want to click",
+                        },
+                    },
+                    "required": ["xpath"],
+                    "additionalProperties": False,
+                }
+            }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "type_text",
+                "description": "If you want to write text into a textfield you can use this instruction. You need to get the XPath of the element you want to type in. Also you need to specify, what you want to type in the textfield and you can also directly submit, if it is a form",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "xpath": {
+                            "type": "string",
+                            "description": "The XPath to the element you want to type into",
+                        },
+                        "input_text": {
+                            "type": "string",
+                            "description": "The text you want to type into the element",
+                        }
+                    },
+                    "required": ["xpath", "input_text"],
+                    "additionalProperties": False,
+                }
+            }
         }
     ]
 
