@@ -9,7 +9,7 @@ class browser:
     def __init__(self) -> None:
         self.browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 
-    def loadWebsite(self, url: str) -> str:
+    def load_website(self, url: str) -> str:
         self.browser.get(url)
         return str(self.browser.page_source)
     
