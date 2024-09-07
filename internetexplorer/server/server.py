@@ -5,16 +5,18 @@ import json
 file = open("config.json")
 configFileContent = json.loads(file.read())
 
-websocket = None
+shared_state = {
+    "websocket": None
+}
 
 async def handle_client(socket, path):
-    websocket = socket
+    shared_state["websocket"] = socket
     print(f"New client connected to path {path}")
 
     # TODO send the state of the settings here
     
     try:
-        async for message in websocket:
+        async for message in socket:
             print(f"Received message: {message}")
 
             parsed_message = json.loads(message)
@@ -38,6 +40,7 @@ async def handle_client(socket, path):
         print("Connection closed.")
 
 async def main():
+    #websocket = websockets.serve(handle_client, configFileContent["server"]["address"], configFileContent["server"]["port"])
     async with websockets.serve(handle_client, configFileContent["server"]["address"], configFileContent["server"]["port"]):
         await asyncio.Future()  # run forever       
 
@@ -72,13 +75,11 @@ def send_browse_action_entry(actions):
 
 def send(object):
     string = json.dumps(object)
-    #if websocket == None:
-        #print("Cannot send, the websocket isn't initialized yet!")
-        #return
     asyncio.run(send_async(string))
 
 async def send_async(string):
-    await websocket.send(string)
+    if shared_state["websocket"]:
+        await shared_state["websocket"].send(string)
 
 # Call this function to start the server thread
 def run():

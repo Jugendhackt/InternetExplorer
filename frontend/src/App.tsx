@@ -30,12 +30,13 @@ function App() {
 
   useEffect(() => {
     if (lastMessage !== null) {
+      console.log(lastMessage.data)
       const data = JSON.parse(lastMessage.data);
       const action = data["action"];
       switch (action) {
         case "input":
-          const inputType = action["inputType"];
-          const inputText = action["inputText"];
+          const inputType = data["inputType"];
+          const inputText = data["inputText"];
           const historyEntry = new UserInputEntry(inputType, inputText);
           setHistoryEntries([...historyEntries, historyEntry]);
           return;
