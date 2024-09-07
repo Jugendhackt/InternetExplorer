@@ -5,7 +5,12 @@ interface Props {
   data: Map<string, string>;
 }
 
-const ActionDetails = ({data}: Props) => {
+const ActionDetails = ({data}: Props) => { 
+
+  if (typeof(data) == "object") {
+    data = new Map(Object.entries(data));
+  }
+  
   return (
     <PageArea title="Action Details" className="rounded-end">
       {Array.from(data.entries()).map(([key, value]) => (
