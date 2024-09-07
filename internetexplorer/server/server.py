@@ -3,6 +3,7 @@ import websockets
 import json 
 file = open("config.json")
 configFileContent = json.loads(file.read())
+
 # Funktion, die Nachrichten vom Client empfängt und antwortet
 async def handle_client(websocket, path):
     print(f"Neuer Client verbunden: {path}")
@@ -17,11 +18,14 @@ async def handle_client(websocket, path):
     except websockets.ConnectionClosedOK:
         print("Verbindung wurde geschlossen.")
 
-# Starte den WebSocket-Server
+async def echo(websocket, path):
+    async for message in websocket:
+        print(f"Received message: {message}")
+        await websocket.send(f"Echo: {message}")
+
 async def main():
     async with websockets.serve(handle_client, configFileContent["server"]["address"], configFileContent["server"]["port"]):
-        print("WebSocket-Server läuft auf ws://0.0.0.0:5000")
-        await asyncio.Future()  # Server bleibt aktiv
+        await asyncio.Future()  # run forever       
 
 if __name__ == "__main__":
     asyncio.run(main())
