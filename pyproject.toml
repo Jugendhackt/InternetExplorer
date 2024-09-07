@@ -6,11 +6,13 @@ authors = [
     { name = "2mal3", email = "56305732+2mal3@users.noreply.github.com" }
 ]
 dependencies = [
-    "selenium>=4.24.0",
-    "chromedriver>=2.24.1",
-    "webdriver-manager>=4.0.2",
-    "openai>=1.44.0",
-    "python-dotenv>=1.0.1",
+    "selenium==4.*",
+    "chromedriver==2.*",
+    "webdriver-manager==4.*",
+    "openai==1.*",
+    "python-dotenv==1.*",
+    "python-socketio==5.*",
+    "flask==3.*",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
