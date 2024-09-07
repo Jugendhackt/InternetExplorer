@@ -32,7 +32,7 @@ class Browser:
             return True
         except: return False
 
-    def get_content(self) -> str: return str(self.browser.page_source)
+    def get_content(self) -> str: return self._clean_html(str(self.browser.page_source))
 
     def xpath_exists(self, xpath: str) -> bool:
         try: self.browser.find_element(By.XPATH, xpath); return True
