@@ -24,7 +24,7 @@ class browser:
             return True
         except: return False
     
-    def getContent(self) -> str: return str(self.browser.page_source)
+    def get_content(self) -> str: return str(self.browser.page_source)
 
     def xpath_exists(self, xpath: str) -> bool:
         try: self.browser.find_element(By.XPATH, xpath); return True
@@ -36,4 +36,5 @@ class browser:
 
 if __name__ == "__main__":
     driver = browser()
-    print(driver.loadWebsite("https://eventfully.ugolis.de"))
+    print(driver.load_website("https://google.com"))
+    input()
