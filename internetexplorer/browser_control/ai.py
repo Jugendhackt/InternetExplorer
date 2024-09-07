@@ -52,7 +52,7 @@ def _get_action(client: openai.Client, prompt: str):
     messages = [
         {
             "role": "system",
-            "content": "You are a very powerful AI browser assistant that helps users navigate the web. The user tells you what they want and you choose the appropriate tools/functions to archive it."
+            "content": "You are a very powerful AI browser assistant that helps users navigate the web. The user tells you what they want and you choose the appropriate tools/functions to achieve it."
         },
         {
             "role": "user",
