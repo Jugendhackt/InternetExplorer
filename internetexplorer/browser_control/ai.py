@@ -10,6 +10,8 @@ def main(browser: Browser, openai_client: openai.Client, prompt: str):
     action = _get_action(openai_client, prompt, browser.html)
     print(prompt, action)
 
+    browser.get_content()
+
     arguments = loads(action.arguments)
     match action.name:
         case "open_website":
