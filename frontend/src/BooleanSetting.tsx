@@ -5,14 +5,18 @@ interface Props {
 }
 
 const BooleanSetting = ({ text, enabled, toggleCallback }: Props) => {
-  // TODO implement callback
   return (
     <div className="form-check form-switch">
       <input
         className="form-check-input"
         type="checkbox"
         role="switch"
-        checked={enabled}
+        defaultChecked={enabled}
+        onChange={(event) => {
+          if (toggleCallback) {
+            toggleCallback(event.target.checked);
+          }
+        }}
       />
       <label className="form-check-label">{text}</label>
     </div>

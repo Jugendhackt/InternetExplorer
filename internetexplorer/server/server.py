@@ -7,6 +7,8 @@ configFileContent = json.loads(file.read())
 # Funktion, die Nachrichten vom Client empfängt und antwortet
 async def handle_client(websocket, path):
     print(f"Neuer Client verbunden: {path}")
+
+    # TODO send the state of the settings here
     
     try:
         async for message in websocket:
