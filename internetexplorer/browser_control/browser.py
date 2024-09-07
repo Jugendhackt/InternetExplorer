@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from platform import system
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment
 from pathlib import Path
 
 
@@ -23,7 +23,16 @@ class Browser:
 
     def _clean_html(self, html: str):
         soup = BeautifulSoup(html, 'html.parser')
-        for tag in soup(["script", "head", "svg", "iframe", "canvas"]): tag.decompose()
+        #print(len(html))
+        for tag in soup(["script", "head", "svg", "iframe", "canvas", "link", "style", "img", "source", "picture"]): tag.decompose()
+
+        for element in soup(text=lambda text: isinstance(text, Comment)):
+            element.extract() 
+
+        for tag in soup.find_all(class_ = True):  # `True` finds all tags
+            del tag['class']
+
+        #print(len(str(soup)))
         return str(soup)
 
     def load_website(self, url: str) -> str:
@@ -56,5 +65,5 @@ class Browser:
 
 if __name__ == "__main__":
     driver = Browser()
-    driver.load_website("https://jugendhackt.org")
+    print(driver.load_website("https://jugendhackt.org"))
     input()
