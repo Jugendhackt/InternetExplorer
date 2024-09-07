@@ -17,7 +17,7 @@ def main():
     browser = Browser()
     client = openai.Client(api_key=OPENAI_API_KEY)
 
-    prompts = ["Open YouTube", "Select the Search Input", "Type 'Moin'"]
+    prompts = ["Open YouTube", "Select the Search Input", "Type 'Never Gonna Give You Up'"]
     html = ""
     prev_xpath = ""
 
