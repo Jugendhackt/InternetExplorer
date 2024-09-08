@@ -13,7 +13,7 @@ class Browser:
     def __init__(self) -> None:
         chrome_options = Options()
         chrome_options.add_extension(Path.cwd() / "internetexplorer" / "browser_control" / "i-still-dont-care-about-cookies.crx")
-        chrome_options.add_extension(Path.cwd() / "internetexplorer" / "browser_control" / "ublock.crx")
+        # chrome_options.add_extension(Path.cwd() / "internetexplorer" / "browser_control" / "ublock.crx")
         chrome_options.add_argument("--disable-search-engine-choice-screen")
 
         if system() == "Linux": self.browser = webdriver.Chrome(options=chrome_options)
@@ -38,7 +38,7 @@ class Browser:
         return str(soup)
 
     def load_website(self, url: str) -> str | bool:
-        try: 
+        try:
             self.browser.get(url)
             self.html = self._clean_html(str(self.browser.page_source))
             return self.html
