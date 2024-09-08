@@ -2,6 +2,8 @@ from time import sleep
 from json import loads
 
 import openai
+from dotenv import load_dotenv
+from os import getenv
 
 from internetexplorer.browser_control.browser import Browser
 
@@ -20,6 +22,56 @@ def main(browser: Browser, openai_client: openai.Client, prompt: str):
             browser.click_element(arguments["xpath"])
         case "type_text":
             browser.type_text(arguments["input_text"], True)
+
+def _select_action(client: openai.Client, prompt: str, html: str | None) -> str:
+    tools = [{
+        "type": "function",
+        "function": {
+            "name": "perform_website_action",
+            "description": "Performs an action on a website, such as opening a website, clicking an element, or typing text in a text field.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["open_website", "click_element", "type_text"],
+                        "description": "The action to perform on the website.",
+                    },
+                },
+                "required": ["url"],
+            }
+        }
+    }]
+
+
+    html_prompt = ""
+    if html:
+        html_prompt = f"## Website HTML:\n{html}\n\n"
+
+    messages = [
+        {
+            "role": "system",
+            "content": """
+You are a very powerful AI browser assistant that helps users navigate the web.
+The user tells you what they want and you choose the appropriate tools/functions to achieve it.
+You are located in the Chrome Web Browser.
+"""
+        },
+        {
+            "role": "user",
+            "content": f"## User Prompt:\n{prompt}\n\n{html_prompt}",
+        }
+    ]
+
+
+    chat_completion = client.chat.completions.create(
+        messages=messages,
+        model="gpt-4o-mini",
+        tools=tools,
+    )
+
+    return loads(chat_completion.choices[0].message.tool_calls[0].function.arguments)["action"]
+
 
 
 def _get_action(client: openai.Client, prompt: str, html: str | None = None):
@@ -106,4 +158,14 @@ def _get_action(client: openai.Client, prompt: str, html: str | None = None):
 
 
 if __name__ == "__main__":
-    main()
+    browser = Browser()
+    html = browser.load_website("https://wikipedia.org")
+
+    load_dotenv()
+    OPENAI_API_KEY = getenv("OPENAI_API_KEY")
+    if not OPENAI_API_KEY:
+        raise ValueError("OPENAI_API_KEY is not set")
+
+    client = openai.Client(api_key=OPENAI_API_KEY)
+
+    print(_select_action(client, "Gehe auf die Suchleiste", html))

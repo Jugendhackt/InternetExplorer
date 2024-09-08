@@ -20,8 +20,7 @@ class Browser:
         else: self.browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
 
-        self.html = ""
-        self.selected_xpath = ""
+        self.html = ""; self.selected_xpath = ""
 
 
     def _clean_html(self, html: str):
@@ -30,7 +29,7 @@ class Browser:
         for tag in soup(["script", "head", "svg", "iframe", "canvas", "link", "style", "img", "source", "picture"]): tag.decompose()
 
         for element in soup(text=lambda text: isinstance(text, Comment)):
-            element.extract() 
+            element.extract()
 
         for tag in soup.find_all(class_ = True):  # `True` finds all tags
             del tag['class']
