@@ -1,10 +1,13 @@
 import threading
-from os import getenv
+from os import error, getenv
+from pathlib import Path
 
 import subprocess
 
 from dotenv import load_dotenv
 import openai
+from pydub import AudioSegment
+from pydub.playback import play
 
 import internetexplorer.speach_to_text.main as speach_to_text
 from internetexplorer.browser_control.browser import Browser
@@ -31,10 +34,17 @@ def main_worker():
     browser = Browser()
     client = openai.Client(api_key=OPENAI_API_KEY)
 
+    error_sound = AudioSegment.from_wav(Path.cwd() / "internetexplorer" / "windows-xp-error.wav")
+    success_sound = AudioSegment.from_wav(Path.cwd() / "internetexplorer" / "Successful_hit.wav")
+
     for prompt in speach_to_text.main():
         print(prompt)
         server.send_voice_input(prompt)
-        ai.main(browser, client, prompt)
+        success = ai.main(browser, client, prompt)
+        if not success:
+            play(error_sound)
+        else:
+            play(success_sound)
 
 
 if __name__ == "__main__":
