@@ -11,3 +11,4 @@ wheels/
 
 # secrets
 .env
+input.wav

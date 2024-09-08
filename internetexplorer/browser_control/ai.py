@@ -9,7 +9,7 @@ from internetexplorer.browser_control.browser import Browser
 
 
 def main(browser: Browser, openai_client: openai.Client, prompt: str) -> None | bool:
-    if not prompt: return False
+    if prompt == None: return False
     action = _get_action(openai_client, prompt, browser.html)
     print(prompt, action)
 
@@ -155,7 +155,8 @@ def _get_action(client: openai.Client, prompt: str, html: str | None = None):
         tools=tools,
     )
 
-    return chat_completion.choices[0].message.tool_calls[0].function
+    try: return chat_completion.choices[0].message.tool_calls[0].function
+    except: return False
 
 
 if __name__ == "__main__":
