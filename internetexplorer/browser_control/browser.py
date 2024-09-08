@@ -37,10 +37,12 @@ class Browser:
         #print(len(str(soup)))
         return str(soup)
 
-    def load_website(self, url: str) -> str:
-        self.browser.get(url)
-        self.html = self._clean_html(str(self.browser.page_source))
-        return self.html
+    def load_website(self, url: str) -> str | bool:
+        try: 
+            self.browser.get(url)
+            self.html = self._clean_html(str(self.browser.page_source))
+            return self.html
+        except: return False
 
     def click_element(self, x_path: str) -> bool:
         try:
@@ -67,5 +69,5 @@ class Browser:
 
 if __name__ == "__main__":
     driver = Browser()
-    print(driver.load_website("https://jugendhackt.org"))
+    print(driver.load_website("https://jugendhecht.org"))
     input()
