@@ -78,7 +78,7 @@ export class BrowseAction {
             {getBrowseActionTypeIcon(this.type)}
             {formatBrowseActionType(this.type)}
           </CardSubtitle>
-          <CardText>test123</CardText>
+          <CardText></CardText>
         </CardBody>
       </Card>
     );
