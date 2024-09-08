@@ -27,7 +27,8 @@ def main(browser: Browser, openai_client: openai.Client, prompt: str) -> None | 
         case "type_text":
             browser.type_text(arguments["input_text"], True)
 
-def _select_action(client: openai.Client, prompt: str, html: str | None) -> str:
+
+def _select_action(client: openai.Client, prompt: str) -> str:
     tools = [{
         "type": "function",
         "function": {
@@ -48,10 +49,6 @@ def _select_action(client: openai.Client, prompt: str, html: str | None) -> str:
     }]
 
 
-    html_prompt = ""
-    if html:
-        html_prompt = f"## Website HTML:\n{html}\n\n"
-
     messages = [
         {
             "role": "system",
@@ -63,10 +60,9 @@ You are located in the Chrome Web Browser.
         },
         {
             "role": "user",
-            "content": f"## User Prompt:\n{prompt}\n\n{html_prompt}",
+            "content": f"## User Prompt:\n{prompt}",
         }
     ]
-
 
     chat_completion = client.chat.completions.create(
         messages=messages,
@@ -172,4 +168,4 @@ if __name__ == "__main__":
 
     client = openai.Client(api_key=OPENAI_API_KEY)
 
-    print(_select_action(client, "Gehe auf die Suchleiste", html))
+    print(_select_action(client, "Gehe auf die Suchleiste"))
