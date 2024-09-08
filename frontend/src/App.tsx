@@ -7,22 +7,15 @@ import useWebSocket from "react-use-websocket";
 import Settings from "./Settings";
 import History from "./History";
 import ActionDetails from "./ActionDetails";
+import { HistoryEntry } from "./data/HistoryEntry";
+import ConnectionStatus from "./ConnectionStatus";
 
 function App() {
   const [actionDetails, setActionDetails] = useState(
     new Map([["test key", "test value"]])
   );
 
-  const [historyEntries, setHistoryEntries] = useState([
-    new UserInputEntry("voice", "Geh auf YouTube und suche nach Fortnite."),
-    new BrowseActionEntry([
-      new BrowseAction(
-        "click_element",
-        new Map([["selector", "#search_box"]]),
-        "success"
-      ),
-    ]),
-  ]);
+  const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>([]);
 
   const { sendMessage, lastMessage, readyState } = useWebSocket(
     "ws://127.0.0.1:1000"
@@ -30,7 +23,7 @@ function App() {
 
   useEffect(() => {
     if (lastMessage !== null) {
-      console.log(lastMessage.data)
+      console.log(lastMessage.data);
       const data = JSON.parse(lastMessage.data);
       const action = data["action"];
       switch (action) {
@@ -60,7 +53,9 @@ function App() {
 
   return (
     <div>
-      <h1 className="text-center">Internet Explorer</h1>
+      <h1 className="text-center">Internet Explorer
+        <ConnectionStatus readyState={readyState}/>
+      </h1>
       <div className="d-flex flex-row align-items-stretch justify-content-evenly m-2 main-layout">
         <Settings sendMessage={sendMessage} />
         <History

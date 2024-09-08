@@ -2,7 +2,11 @@ import asyncio
 from dataclasses import dataclass
 import websockets
 import json 
-file = open("config.json")
+from os import path
+import time
+
+file = open(path.join("internetexplorer", "server", "config.json"))
+
 configFileContent = json.loads(file.read())
 
 shared_state = {
@@ -31,7 +35,7 @@ async def handle_client(socket, path):
                 # TODO implement
             elif action == "kill":
                 print("Kill switch pressed!")
-                # TODO implement
+                exit()
             elif action == "submit_prompt":
                 prompt = parsed_message["prompt"]
                 # TODO implement
@@ -41,7 +45,12 @@ async def handle_client(socket, path):
 
 async def main():
     #websocket = websockets.serve(handle_client, configFileContent["server"]["address"], configFileContent["server"]["port"])
-    async with websockets.serve(handle_client, configFileContent["server"]["address"], configFileContent["server"]["port"]):
+    address = configFileContent["server"]["address"]
+    port =  configFileContent["server"]["port"]
+
+    print(f"Running server on {address}:{port}")
+
+    async with websockets.serve(handle_client, address, port):
         await asyncio.Future()  # run forever       
 
 def send_voice_input(input: str):
@@ -83,6 +92,8 @@ async def send_async(string):
 
 # Call this function to start the server thread
 def run():
+    print("Running server")
+
     asyncio.run(main())
 
 if __name__ == "__main__":

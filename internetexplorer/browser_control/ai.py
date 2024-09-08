@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from os import getenv
 
 from internetexplorer.browser_control.browser import Browser
-
+import internetexplorer.server.server as server
 
 def main(browser: Browser, openai_client: openai.Client, prompt: str) -> None | bool:
     if prompt == None: return False
@@ -15,16 +15,22 @@ def main(browser: Browser, openai_client: openai.Client, prompt: str) -> None | 
 
     browser.get_content()
 
-    arguments = loads(action.arguments)
-    match action.name:
-        case "open_website":
-            browser.load_website(arguments["url"])
-        case "click_element":
-            browser.click_element(arguments["xpath"])
-        case "type_text":
-            browser.type_text(arguments["input_text"], True)
+    try:
+        arguments = loads(action.arguments)
+        server.send_browse_action_entry([
+            server.BrowseAction(action.name, arguments, "success")
+        ])
+        match action.name:
+            case "open_website":
+                browser.load_website(arguments["url"])
+            case "click_element":
+                browser.click_element(arguments["xpath"])
+            case "type_text":
+                browser.type_text(arguments["input_text"], True)
+    except: print("AI send invalid response")
 
-def _select_action(client: openai.Client, prompt: str, html: str | None) -> str:
+
+def _select_action(client: openai.Client, prompt: str) -> str:
     tools = [{
         "type": "function",
         "function": {
@@ -45,10 +51,6 @@ def _select_action(client: openai.Client, prompt: str, html: str | None) -> str:
     }]
 
 
-    html_prompt = ""
-    if html:
-        html_prompt = f"## Website HTML:\n{html}\n\n"
-
     messages = [
         {
             "role": "system",
@@ -60,10 +62,9 @@ You are located in the Chrome Web Browser.
         },
         {
             "role": "user",
-            "content": f"## User Prompt:\n{prompt}\n\n{html_prompt}",
+            "content": f"## User Prompt:\n{prompt}",
         }
     ]
-
 
     chat_completion = client.chat.completions.create(
         messages=messages,
@@ -170,4 +171,4 @@ if __name__ == "__main__":
 
     client = openai.Client(api_key=OPENAI_API_KEY)
 
-    print(_select_action(client, "Gehe auf die Suchleiste", html))
+    print(_select_action(client, "Gehe auf die Suchleiste"))
