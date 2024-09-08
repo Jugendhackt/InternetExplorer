@@ -53,7 +53,7 @@ function App() {
 
   return (
     <div>
-      <h1 className="text-center">Internet Explorer
+      <h1 className="text-center">✨ Internet Explorer
         <ConnectionStatus readyState={readyState}/>
       </h1>
       <div className="d-flex flex-row align-items-stretch justify-content-evenly m-2 main-layout">

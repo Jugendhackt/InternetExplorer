@@ -2,7 +2,7 @@ import asyncio
 from dataclasses import dataclass
 import websockets
 import json 
-from os import path
+from os import path, _exit
 import time
 
 file = open(path.join("internetexplorer", "server", "config.json"))
@@ -35,7 +35,7 @@ async def handle_client(socket, path):
                 # TODO implement
             elif action == "kill":
                 print("Kill switch pressed!")
-                exit()
+                _exit(1)
             elif action == "submit_prompt":
                 prompt = parsed_message["prompt"]
                 # TODO implement

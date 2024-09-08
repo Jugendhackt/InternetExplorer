@@ -1,6 +1,8 @@
 import threading
 from os import getenv
 
+import subprocess
+
 from dotenv import load_dotenv
 import openai
 

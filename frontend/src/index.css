@@ -15,3 +15,7 @@
         height: 90vh;
     }
 }
+
+.clickable-card:hover {
+    box-shadow: 0 0 15px 0 rgba(150,150,150,.4);
+}

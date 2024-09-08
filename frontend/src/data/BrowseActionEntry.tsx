@@ -23,7 +23,7 @@ interface Props {
 
 const BrowseActionEntryComponent = ({browseActionEntry, setActionDetails}: Props) => {
   return (
-    <Card className="m-1 w-75 me-auto">
+    <Card className="m-1 w-75 me-auto clickable-card">
         <CardBody>{browseActionEntry.actions.map((action) => action.render(setActionDetails))}</CardBody>
     </Card>
   )

@@ -15,7 +15,7 @@ export class UserInputEntry extends HistoryEntry {
   
     render(): ReactNode {
       return (
-        <Card className="m-1 w-75 ms-auto">
+        <Card className="m-1 w-75 ms-auto clickable-card">
           <CardBody>
             <CardSubtitle className="text-body-secondary mb-2">
               {getInputTypeIcon(this.inputType)}
