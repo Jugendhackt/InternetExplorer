@@ -7,6 +7,7 @@ import openai
 import internetexplorer.speach_to_text.main as speach_to_text
 from internetexplorer.browser_control.browser import Browser
 import internetexplorer.browser_control.ai as ai
+import internetexplorer.server.server as server
 
 
 load_dotenv()
@@ -18,6 +19,10 @@ if not OPENAI_API_KEY:
 def main():
     main_thread = threading.Thread(target=main_worker)
     main_thread.start()
+
+    server.run()   
+    #thread = threading.Thread(target=server.run)
+    #thread.start()
 
 
 def main_worker():
