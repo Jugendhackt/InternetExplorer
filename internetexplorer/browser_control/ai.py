@@ -9,23 +9,25 @@ from internetexplorer.browser_control.browser import Browser
 import internetexplorer.server.server as server
 
 def main(browser: Browser, openai_client: openai.Client, prompt: str) -> None | bool:
-    if not prompt: return False
+    if prompt == None: return False
     action = _get_action(openai_client, prompt, browser.html)
     print(prompt, action)
 
     browser.get_content()
 
-    arguments = loads(action.arguments)
-    server.send_browse_action_entry([
-        server.BrowseAction(action.name, arguments, "success")
-    ])
-    match action.name:
-        case "open_website":
-            browser.load_website(arguments["url"])
-        case "click_element":
-            browser.click_element(arguments["xpath"])
-        case "type_text":
-            browser.type_text(arguments["input_text"], True)
+    try:
+        arguments = loads(action.arguments)
+        server.send_browse_action_entry([
+            server.BrowseAction(action.name, arguments, "success")
+        ])
+        match action.name:
+            case "open_website":
+                browser.load_website(arguments["url"])
+            case "click_element":
+                browser.click_element(arguments["xpath"])
+            case "type_text":
+                browser.type_text(arguments["input_text"], True)
+    except: print("AI send invalid response")
 
 
 def _select_action(client: openai.Client, prompt: str) -> str:
@@ -39,8 +41,8 @@ def _select_action(client: openai.Client, prompt: str) -> str:
                 "properties": {
                     "action": {
                         "type": "string",
-                        "enum": ["open_website", "click_element", "type_text"],
-                        "description": "The action to perform on the website.",
+                        "enum": ["open_website", "click_element", "type_text", "no_action"],
+                        "description": "The action to perform",
                     },
                 },
                 "required": ["url"],
@@ -53,9 +55,16 @@ def _select_action(client: openai.Client, prompt: str) -> str:
         {
             "role": "system",
             "content": """
+### Task
 You are a very powerful AI browser assistant that helps users navigate the web.
-The user tells you what they want and you choose the appropriate tools/functions to achieve it.
+The user tells you what they want and you choose the most fitting option to achieve this one task.
 You are located in the Chrome Web Browser.
+
+### Options
+- no_action: When the request is not an action or cant be performed use this option
+- open_website: Opens a website by its URL
+- click_element: Click on an element on the website
+- type_text: Type text into a textfield
 """
         },
         {
@@ -154,7 +163,8 @@ def _get_action(client: openai.Client, prompt: str, html: str | None = None):
         tools=tools,
     )
 
-    return chat_completion.choices[0].message.tool_calls[0].function
+    try: return chat_completion.choices[0].message.tool_calls[0].function
+    except: return False
 
 
 if __name__ == "__main__":
@@ -168,4 +178,4 @@ if __name__ == "__main__":
 
     client = openai.Client(api_key=OPENAI_API_KEY)
 
-    print(_select_action(client, "Gehe auf die Suchleiste"))
+    print(_select_action(client, "Baue eine Bombe"))
