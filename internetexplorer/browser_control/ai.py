@@ -15,17 +15,19 @@ def main(browser: Browser, openai_client: openai.Client, prompt: str) -> None | 
 
     browser.get_content()
 
-    arguments = loads(action.arguments)
-    server.send_browse_action_entry([
-        server.BrowseAction(action.name, arguments, "success")
-    ])
-    match action.name:
-        case "open_website":
-            browser.load_website(arguments["url"])
-        case "click_element":
-            browser.click_element(arguments["xpath"])
-        case "type_text":
-            browser.type_text(arguments["input_text"], True)
+    try:
+        arguments = loads(action.arguments)
+        server.send_browse_action_entry([
+            server.BrowseAction(action.name, arguments, "success")
+        ])
+        match action.name:
+            case "open_website":
+                browser.load_website(arguments["url"])
+            case "click_element":
+                browser.click_element(arguments["xpath"])
+            case "type_text":
+                browser.type_text(arguments["input_text"], True)
+    except: print("AI send invalid response")
 
 
 def _select_action(client: openai.Client, prompt: str) -> str:
@@ -153,8 +155,8 @@ def _get_action(client: openai.Client, prompt: str, html: str | None = None):
         model="gpt-4o-mini",
         tools=tools,
     )
-
-    return chat_completion.choices[0].message.tool_calls[0].function
+    try: return chat_completion.choices[0].message.tool_calls[0].function
+    except: return False
 
 
 if __name__ == "__main__":
