@@ -35,7 +35,7 @@ async def handle_client(socket, path):
                 # TODO implement
             elif action == "kill":
                 print("Kill switch pressed!")
-                # TODO implement
+                exit()
             elif action == "submit_prompt":
                 prompt = parsed_message["prompt"]
                 # TODO implement

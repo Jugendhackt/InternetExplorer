@@ -31,6 +31,7 @@ def main_worker():
 
     for prompt in speach_to_text.main():
         print(prompt)
+        server.send_voice_input(prompt)
         ai.main(browser, client, prompt)
 
 

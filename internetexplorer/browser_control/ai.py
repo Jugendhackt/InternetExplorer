@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from os import getenv
 
 from internetexplorer.browser_control.browser import Browser
-
+import internetexplorer.server.server as server
 
 def main(browser: Browser, openai_client: openai.Client, prompt: str) -> None | bool:
     if not prompt: return False
@@ -16,6 +16,9 @@ def main(browser: Browser, openai_client: openai.Client, prompt: str) -> None | 
     browser.get_content()
 
     arguments = loads(action.arguments)
+    server.send_browse_action_entry([
+        server.BrowseAction(action.name, arguments, "success")
+    ])
     match action.name:
         case "open_website":
             browser.load_website(arguments["url"])
