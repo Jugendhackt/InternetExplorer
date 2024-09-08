@@ -8,7 +8,8 @@ from os import getenv
 from internetexplorer.browser_control.browser import Browser
 
 
-def main(browser: Browser, openai_client: openai.Client, prompt: str):
+def main(browser: Browser, openai_client: openai.Client, prompt: str) -> None | bool:
+    if not prompt: return False
     action = _get_action(openai_client, prompt, browser.html)
     print(prompt, action)
 
