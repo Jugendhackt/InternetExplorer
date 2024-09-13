@@ -1,19 +1,21 @@
-import speech_recognition as sr
-from pathlib import Path
 import locale
+from pathlib import Path
 
-def SpeechRecognizer(audio_file_path='input.wav'):
+import speech_recognition as sr
+
+
+def speech_recognizer(audio_file_path="input.wav") -> str | None:
     # Bestimme die Spracheinstellungen des Systems
     lang, _ = locale.getlocale()
 
     # Initialisiere den Recognizer
     r = sr.Recognizer()
-    	
+
     Path("input.wav").touch()
     # Lade die Audiodatei
     with sr.AudioFile(audio_file_path) as source:
         audio_data = r.record(source)  # Nimm das Audio aus der Datei auf
-    
+
     # Erkenne die Sprache im Audio und gebe den Text zurück
     try:
         recognized_text = r.recognize_google(audio_data, language=lang)
@@ -25,8 +27,10 @@ def SpeechRecognizer(audio_file_path='input.wav'):
         print(f"Fehler bei der Verbindung mit der Google-API: {e}")
         return None
 
-# Beispielaufruf der Funktion
-        recognized_text = SpeechRecognizer()
-        #print(recognized_text)
+        # Beispielaufruf der Funktion
+        recognized_text = speech_recognizer()
+        # print(recognized_text)
         return recognized_text
-#SpeechRecognizer()
+
+
+# SpeechRecognizer()

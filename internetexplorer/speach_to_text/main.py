@@ -1,6 +1,9 @@
-import pyaudio
+from typing import Callable
 import wave
-import keyboard
+
+import pyaudio
+import pynput
+
 import internetexplorer.speach_to_text.stt as stt
 
 
@@ -11,54 +14,51 @@ CHANNELS = 1  # Mono
 RATE = 44100  # Abtastrate in Hz
 
 
-def record_audio():
-    # Initialisiere PyAudio
-    p = pyaudio.PyAudio()
+class Recorder:
+    def __init__(self, handler: Callable):
+        self.recording = False
+        self.audio = pyaudio.PyAudio()
+        self.stream = self.audio.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
+        self.frames = []
+        self.handler = handler
+        self.recording = False
 
-    # Öffne den Stream für die Audioaufnahme
-    stream = p.open(format=FORMAT,
-                    channels=CHANNELS,
-                    rate=RATE,
-                    input=True,
-                    frames_per_buffer=CHUNK)
+        print("Drücke die Leertaste zum Aufnehmen...")
+        with pynput.keyboard.Listener(on_press=self.on_press, on_release=self.on_release) as listener:
+            listener.join()
 
-    print("Drücke die Leertaste zum Aufnehmen...")
+    def on_press(self, key):
+        if key != pynput.keyboard.Key.space:
+            return
+        if not self.recording:
+            print("Aufnahme gestartet.")
+            self.recording = True
 
-    frames = []
+        data = self.stream.read(CHUNK)
+        self.frames.append(data)
 
-    # Warte auf die Space-Taste zum Start der Aufnahme
-    keyboard.wait('space')
-    print("Aufnahme gestartet...")
+        return True     # tell the listener to continue listening
 
-    # Solange die Space-Taste gedrückt ist, Audio aufnehmen
-    while keyboard.is_pressed('space'):
-        data = stream.read(CHUNK)
-        frames.append(data)
+    def on_release(self, key):
+        if key != pynput.keyboard.Key.space:
+            return
+        self.recording = False
+        print("Aufnahme beendet.")
 
-    print("Aufnahme beendet.")
+        wav_output_filename = "input.wav"
+        with wave.open(wav_output_filename, 'wb') as wf:
+            wf.setnchannels(CHANNELS)
+            wf.setsampwidth(self.audio.get_sample_size(FORMAT))
+            wf.setframerate(RATE)
+            wf.writeframes(b''.join(self.frames))
 
-    # Beende und schließe den Stream
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
+        self.handler(stt.speech_recognizer())
 
-    # Speichere die Aufnahme als WAV-Datei
-    wav_output_filename = "input.wav"
-    with wave.open(wav_output_filename, 'wb') as wf:
-        wf.setnchannels(CHANNELS)
-        wf.setsampwidth(p.get_sample_size(FORMAT))
-        wf.setframerate(RATE)
-        wf.writeframes(b''.join(frames))
+        self.frames = []
 
-    print(f"Aufnahme gespeichert als {wav_output_filename}")
-    return stt.SpeechRecognizer()
-
-
-def main():
-    while True:
-        yield str(record_audio())
+        return True     # tell the listener to continue listening
 
 
 # Beispielaufruf
 if __name__ == "__main__":
-    main()
+    r = Recorder(lambda text: text)
