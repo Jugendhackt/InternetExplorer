@@ -16,7 +16,7 @@ class Browser:
         chrome_options.add_extension(
             Path.cwd() / "internetexplorer" / "extensions" / "i-still-dont-care-about-cookies.crx"
         )
-        # chrome_options.add_extension(Path.cwd() / "internetexplorer" / "browser_control" / "ublock.crx")
+        chrome_options.add_extension(Path.cwd() / "internetexplorer" / "extensions" / "ublock-lite.crx")
         chrome_options.add_argument("--disable-search-engine-choice-screen")
 
         if system() == "Linux":
