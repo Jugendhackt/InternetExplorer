@@ -1,14 +1,14 @@
-from time import sleep
 from json import loads
 
 import openai
 from dotenv import load_dotenv
 from os import getenv
 
-from internetexplorer.browser_control.browser import Browser
-import internetexplorer.server.server as server
 
-def main(browser: Browser, openai_client: openai.Client, prompt: str) -> bool:
+from internetexplorer import browser_control, server
+
+
+def main(browser: browser_control.Browser, openai_client: openai.Client, prompt: str) -> bool:
     if prompt is None or prompt.strip() == "":
         return True
 
@@ -16,9 +16,7 @@ def main(browser: Browser, openai_client: openai.Client, prompt: str) -> bool:
     action_name, arguments = _get_action(openai_client, prompt, browser.html)
     print(f"Action: {action_name}, Arguments: {arguments}")
 
-    server.send_browse_action_entry([
-        server.BrowseAction(action_name, arguments, "success")
-    ])
+    server.send_browse_action_entry([server.BrowseAction(action_name, arguments, "success")])
 
     match action_name:
         case "open_website":
@@ -34,25 +32,26 @@ def main(browser: Browser, openai_client: openai.Client, prompt: str) -> bool:
 
 
 def _select_action(client: openai.Client, prompt: str) -> str:
-    tools = [{
-        "type": "function",
-        "function": {
-            "name": "perform_website_action",
-            "description": "Performs an action on a website, such as opening a website, clicking an element, or typing text in a text field.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "action": {
-                        "type": "string",
-                        "enum": ["open_website", "click_element", "type_text", "no_action"],
-                        "description": "The action to perform",
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "perform_website_action",
+                "description": "Performs an action on a website, such as opening a website, clicking an element, or typing text in a text field.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "action": {
+                            "type": "string",
+                            "enum": ["open_website", "click_element", "type_text", "no_action"],
+                            "description": "The action to perform",
+                        },
                     },
+                    "required": ["url"],
                 },
-                "required": ["url"],
-            }
+            },
         }
-    }]
-
+    ]
 
     messages = [
         {
@@ -68,12 +67,12 @@ You are located in the Chrome Web Browser.
 - open_website: Opens a website by its URL
 - click_element: Click on an element on the website
 - type_text: Type text into a textfield
-"""
+""",
         },
         {
             "role": "user",
             "content": f"## User Prompt:\n{prompt}",
-        }
+        },
     ]
 
     chat_completion = client.chat.completions.create(
@@ -83,7 +82,6 @@ You are located in the Chrome Web Browser.
     )
 
     return loads(chat_completion.choices[0].message.tool_calls[0].function.arguments)["action"]
-
 
 
 def _get_action(client: openai.Client, prompt: str, html: str | None = None) -> tuple[str, dict]:
@@ -103,8 +101,8 @@ def _get_action(client: openai.Client, prompt: str, html: str | None = None) -> 
                     },
                     "required": ["url"],
                     "additionalProperties": False,
-                }
-            }
+                },
+            },
         },
         {
             "type": "function",
@@ -121,8 +119,8 @@ def _get_action(client: openai.Client, prompt: str, html: str | None = None) -> 
                     },
                     "required": ["xpath"],
                     "additionalProperties": False,
-                }
-            }
+                },
+            },
         },
         {
             "type": "function",
@@ -139,9 +137,9 @@ def _get_action(client: openai.Client, prompt: str, html: str | None = None) -> 
                     },
                     "required": ["input_text"],
                     "additionalProperties": False,
-                }
-            }
-        }
+                },
+            },
+        },
     ]
 
     html_prompt = ""
@@ -151,14 +149,13 @@ def _get_action(client: openai.Client, prompt: str, html: str | None = None) -> 
     messages = [
         {
             "role": "system",
-            "content": "You are a very powerful AI browser assistant that helps users navigate the web. The user tells you what they want and you choose the appropriate tools/functions to achieve it."
+            "content": "You are a very powerful AI browser assistant that helps users navigate the web. The user tells you what they want and you choose the appropriate tools/functions to achieve it.",
         },
         {
             "role": "user",
             "content": f"## User Prompt:\n{prompt}\n\n{html_prompt}",
-        }
+        },
     ]
-
 
     chat_completion = client.chat.completions.create(
         messages=messages,
@@ -174,7 +171,7 @@ def _get_action(client: openai.Client, prompt: str, html: str | None = None) -> 
 
 
 if __name__ == "__main__":
-    browser = Browser()
+    browser = browser_control.Browser()
 
     load_dotenv()
     OPENAI_API_KEY = getenv("OPENAI_API_KEY")
@@ -183,7 +180,13 @@ if __name__ == "__main__":
 
     client = openai.Client(api_key=OPENAI_API_KEY)
 
-    prompts = ["Gehe auf Wikipedia", "Gehe auf Deutsch", "Wähle die Suche aus", "Gebe Künstliche Intelligenz ein", "Baue eine Bombe"]
+    prompts = [
+        "Gehe auf Wikipedia",
+        "Gehe auf Deutsch",
+        "Wähle die Suche aus",
+        "Gebe Künstliche Intelligenz ein",
+        "Baue eine Bombe",
+    ]
     for prompt in prompts:
         main(browser, client, prompt)
 

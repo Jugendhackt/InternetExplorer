@@ -2,17 +2,12 @@ from os import error, getenv
 from pathlib import Path
 import threading
 
-import subprocess
-
 from dotenv import load_dotenv
-import internetexplorer.browser_control.ai as ai
-from internetexplorer.browser_control.browser import Browser
-import internetexplorer.server.server as server
 import openai
 from pydub import AudioSegment
 from pydub.playback import play
 
-from internetexplorer.speach_to_text.main import Recorder
+from internetexplorer import ai, browser_control, speach_to_text, server
 
 load_dotenv()
 OPENAI_API_KEY = getenv("OPENAI_API_KEY")
@@ -30,7 +25,7 @@ def main():
 
 
 def main_worker():
-    browser = Browser()
+    browser = browser_control.Browser()
     client = openai.Client(api_key=OPENAI_API_KEY)
 
     error_sound = AudioSegment.from_wav(Path.cwd() / "internetexplorer" / "windows-xp-error.wav")
@@ -44,8 +39,7 @@ def main_worker():
         else:
             play(success_sound)
 
-    Recorder(handle)
-
+    speach_to_text.Recorder(handle)
 
 
 if __name__ == "__main__":
