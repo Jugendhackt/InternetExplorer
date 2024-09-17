@@ -1,22 +1,47 @@
 from json import loads
-
-import openai
-from dotenv import load_dotenv
 from os import getenv
+from pathlib import Path
+from re import A
+from typing import Generator, Literal
 
+from dotenv import load_dotenv
+import openai
+from openai.types.chat import (
+    ChatCompletionSystemMessageParam,
+    ChatCompletionUserMessageParam,
+)
+from pydantic import BaseModel
 
 from internetexplorer import browser_control, server
 
 
-def main(browser: browser_control.Browser, openai_client: openai.Client, prompt: str) -> bool:
+class AIError(Exception):
+    pass
+
+
+def main(browser: browser_control.Browser, openai_client: openai.Client, prompt: str) -> Generator[bool, None, None]:
     if prompt is None or prompt.strip() == "":
-        return True
+        yield False
+        return
 
-    browser.get_content()
-    action_name, arguments = _get_action(openai_client, prompt, browser.html)
+    try:
+        # Let the ai figure out the ruff steps to achieve the prompt
+        instructions = _select_instructions(openai_client, prompt, browser.get_current_url(), browser.get_content())
+        print(f"Nächste Schritte: {instructions}")
+        # Process the actions one by one
+        for instruction in instructions:
+            print(f"Führe aus: {instruction}")
+            _process_instruction(openai_client, browser, instruction)
+            yield True
+    except AIError as e:
+        print(f"AI Error: {e}")
+        yield False
+        return
+
+
+def _process_instruction(client: openai.Client, browser: browser_control.Browser, instruction: str):
+    action_name, arguments = _create_action(client, instruction, browser.get_content())
     print(f"Action: {action_name}, Arguments: {arguments}")
-
-    server.send_browse_action_entry([server.BrowseAction(action_name, arguments, "success")])
 
     match action_name:
         case "open_website":
@@ -25,66 +50,11 @@ def main(browser: browser_control.Browser, openai_client: openai.Client, prompt:
             browser.click_element(arguments["xpath"])
         case "type_text":
             browser.type_text(arguments["input_text"], True)
-        case "no_action":
-            return False
 
-    return True
+    server.send_browse_action_entry([server.BrowseAction(action_name, arguments, "success")])
 
 
-def _select_action(client: openai.Client, prompt: str) -> str:
-    tools = [
-        {
-            "type": "function",
-            "function": {
-                "name": "perform_website_action",
-                "description": "Performs an action on a website, such as opening a website, clicking an element, or typing text in a text field.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "action": {
-                            "type": "string",
-                            "enum": ["open_website", "click_element", "type_text", "no_action"],
-                            "description": "The action to perform",
-                        },
-                    },
-                    "required": ["url"],
-                },
-            },
-        }
-    ]
-
-    messages = [
-        {
-            "role": "system",
-            "content": """
-### Task
-You are a very powerful AI browser assistant that helps users navigate the web.
-The user tells you what they want and you choose the most fitting option to achieve this one task.
-You are located in the Chrome Web Browser.
-
-### Options
-- no_action: When the request is not an action, cant be performed or is not safe use this option
-- open_website: Opens a website by its URL
-- click_element: Click on an element on the website
-- type_text: Type text into a textfield
-""",
-        },
-        {
-            "role": "user",
-            "content": f"## User Prompt:\n{prompt}",
-        },
-    ]
-
-    chat_completion = client.chat.completions.create(
-        messages=messages,
-        model="gpt-4o-mini",
-        tools=tools,
-    )
-
-    return loads(chat_completion.choices[0].message.tool_calls[0].function.arguments)["action"]
-
-
-def _get_action(client: openai.Client, prompt: str, html: str | None = None) -> tuple[str, dict]:
+def _create_action(client: openai.Client, prompt: str, html: str | None = None) -> tuple[str, dict]:
     tools = [
         {
             "type": "function",
@@ -140,6 +110,13 @@ def _get_action(client: openai.Client, prompt: str, html: str | None = None) -> 
                 },
             },
         },
+        {
+            "type": "function",
+            "function": {
+                "name": "no_action",
+                "description": "If you want to do nothing, you can call this instruction. You get the website HTML and return an XPATH of the element you want to click",
+            },
+        },
     ]
 
     html_prompt = ""
@@ -158,27 +135,51 @@ def _get_action(client: openai.Client, prompt: str, html: str | None = None) -> 
     ]
 
     chat_completion = client.chat.completions.create(
-        messages=messages,
-        model="gpt-4o-mini",
-        tools=tools,
+        messages=messages, model="gpt-4o-mini", tools=tools, timeout=10, max_tokens=1000
     )
 
-    try:
-        action = chat_completion.choices[0].message.tool_calls[0].function
-        return action.name, loads(action.arguments)
-    except (IndexError, KeyError, TypeError):
-        return "no_action", {}
+    if not chat_completion.choices or not chat_completion.choices[0].message.tool_calls:
+        raise AIError(chat_completion)
+
+    action = chat_completion.choices[0].message.tool_calls[0].function
+    if action.name == "no_action":
+        raise AIError("No action performed")
+
+    return action.name, loads(action.arguments)
 
 
-if __name__ == "__main__":
+class SelectActionsResponseFormat(BaseModel):
+    actions: list[str]
+
+
+def _select_instructions(client: openai.Client, prompt: str, website_url: str, html: str) -> list[str]:
+    with open(Path().cwd() / "internetexplorer" / "prompts" / "select_actions.md", "r") as f:
+        system_prompt = f.read()
+    system_prompt = system_prompt.format(website=website_url, html=html)
+
+    messages = [
+        ChatCompletionSystemMessageParam(
+            role="system",
+            content=system_prompt,
+        ),
+        ChatCompletionUserMessageParam(
+            role="user",
+            content=prompt,
+        ),
+    ]
+
+    chat_completion = client.beta.chat.completions.parse(
+        messages=messages, model="gpt-4o-mini", response_format=SelectActionsResponseFormat, timeout=10, max_tokens=1000
+    )
+
+    if not chat_completion.choices or not chat_completion.choices[0].message.content:
+        raise AIError(chat_completion)
+
+    return loads(chat_completion.choices[0].message.content)["actions"]
+
+
+def test_1():
     browser = browser_control.Browser()
-
-    load_dotenv()
-    OPENAI_API_KEY = getenv("OPENAI_API_KEY")
-    if not OPENAI_API_KEY:
-        raise ValueError("OPENAI_API_KEY is not set")
-
-    client = openai.Client(api_key=OPENAI_API_KEY)
 
     prompts = [
         "Gehe auf Wikipedia",
@@ -191,3 +192,14 @@ if __name__ == "__main__":
         main(browser, client, prompt)
 
     input()
+
+
+if __name__ == "__main__":
+    load_dotenv()
+    OPENAI_API_KEY = getenv("OPENAI_API_KEY")
+    if not OPENAI_API_KEY:
+        raise ValueError("OPENAI_API_KEY is not set")
+
+    client = openai.Client(api_key=OPENAI_API_KEY)
+
+    print(_select_instructions(client, "öffne the youtube kanal 'The Morpheus'", "browser startpage", ""))

@@ -79,6 +79,9 @@ class Browser:
         except:
             return False
 
+    def get_current_url(self) -> str:
+        return self.browser.current_url
+
 
 if __name__ == "__main__":
     driver = Browser()

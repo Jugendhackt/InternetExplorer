@@ -29,6 +29,7 @@
         python311Packages.beautifulsoup4
         python311Packages.pynput
         python311Packages.pyaudio
+        python311Packages.pydantic
       ];
     };
   };

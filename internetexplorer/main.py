@@ -29,15 +29,16 @@ def main_worker():
     client = openai.Client(api_key=OPENAI_API_KEY)
 
     error_sound = AudioSegment.from_wav(Path.cwd() / "internetexplorer" / "windows-xp-error.wav")
+    # error_sound = AudioSegment.from_wav(Path.cwd() / "internetexplorer" / "hall.wav")
     success_sound = AudioSegment.from_wav(Path.cwd() / "internetexplorer" / "Successful_hit.wav")
 
     def handle(text: str):
         server.send_voice_input(text)
-        success = ai.main(browser, client, text)
-        if not success:
-            play(error_sound)
-        else:
-            play(success_sound)
+        for success in ai.main(browser, client, text):
+            if not success:
+                play(error_sound)
+            else:
+                play(success_sound)
 
     speach_to_text.Recorder(handle)
 
