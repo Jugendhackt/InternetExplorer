@@ -9,6 +9,7 @@ import History from "./History";
 import ActionDetails from "./ActionDetails";
 import { HistoryEntry } from "./data/HistoryEntry";
 import ConnectionStatus from "./ConnectionStatus";
+import ColorSchemeToggle from "./ColorSchemeToggle";
 
 function App() {
   const [actionDetails, setActionDetails] = useState(
@@ -53,8 +54,10 @@ function App() {
 
   return (
     <div>
-      <h1 className="text-center">✨ Internet Explorer
-        <ConnectionStatus readyState={readyState}/>
+      <h1 className="text-center">
+        ✨ Internet Explorer
+        <ConnectionStatus readyState={readyState} />
+        <ColorSchemeToggle />
       </h1>
       <div className="d-flex flex-row align-items-stretch justify-content-evenly m-2 main-layout">
         <Settings sendMessage={sendMessage} />
